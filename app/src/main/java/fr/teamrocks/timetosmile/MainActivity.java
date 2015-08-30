@@ -2,6 +2,8 @@ package fr.teamrocks.timetosmile;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -52,10 +54,9 @@ public class MainActivity extends AppCompatActivity {
                     ActivityCompat.requestPermissions(thisActivity, permissions, REQUEST_CAMERA_PERM);
                 }
             };
-
             Snackbar.make(findViewById(R.id.rootView), getString(R.string.camera_perm_rationale),
                     Snackbar.LENGTH_INDEFINITE)
-                    .setAction(getString(R.string.camera_perm_rationale_OK), listener)
+                    .setAction(getString(R.string.dialog_OK), listener)
             .show();
         } else
             ActivityCompat.requestPermissions(thisActivity, permissions, REQUEST_CAMERA_PERM);
@@ -64,10 +65,37 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CAMERA_PERM: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    createCameraSource();
+                } else {
+                    Log.w(TAG, "Camera permission not granted");
+
+                    DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            finish();
+                        }
+                    };
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.message_need_camera_permission_title)
+                            .setMessage(R.string.message_need_camera_permission)
+                            .setPositiveButton(R.string.dialog_OK, listener)
+                            .show();
+                    return;
+                }
+            }
+            default: {
+                Log.e(TAG, "Got unexpected permission result: " + requestCode);
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                return;
+            }
+        }
 
     }
 
-        private void createCameraSource() {
+    private void createCameraSource() {
         Log.w(TAG, "Create a camera source");
     }
 

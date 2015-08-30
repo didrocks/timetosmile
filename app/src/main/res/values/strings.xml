@@ -4,5 +4,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="camera_perm_rationale">We need to have access to the camera to see your cute smile!</string>
-    <string name="camera_perm_rationale_OK">OK</string>
+    <string name="dialog_OK">OK</string>
+    <string name="message_need_camera_permission">This application cannot run because it does not have the camera permission. The application will now exit.</string>
+    <string name="message_need_camera_permission_title">We won\'t see your smile!</string>
 </resources>
