@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Tracker;
@@ -27,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private static final int REQUEST_CAMERA_PERM = 1;
+    static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
 
     private CameraSource mCameraSource = null;
 
@@ -82,18 +86,8 @@ public class MainActivity extends AppCompatActivity {
                     createCameraSource();
                 } else {
                     Log.w(TAG, "Camera permission not granted");
-
-                    DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            finish();
-                        }
-                    };
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(R.string.message_need_camera_permission_title)
-                            .setMessage(R.string.message_need_camera_permission)
-                            .setPositiveButton(R.string.dialog_OK, listener)
-                            .show();
+                    showNonRecoverableError(getString(R.string.message_need_camera_permission_title),
+                            getString(R.string.message_need_camera_permission));
                     return;
                 }
             }
@@ -113,7 +107,8 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onPause() {
         super.onPause();
-        mCameraSource.stop();
+        if (mCameraSource != null)
+            mCameraSource.stop();
     }
 
     protected void onDestroy() {
@@ -135,12 +130,14 @@ public class MainActivity extends AppCompatActivity {
         detector.setProcessor(new LargestFaceFocusingProcessor(detector, new FaceTracker()));
 
         if (!detector.isOperational()) {
-            // TODO: Add dialog here
             Log.w(TAG, "Detector dependencies are not yet available.");
+            showNonRecoverableError(getString(R.string.error_missing_dependencies_title),
+                    getString(R.string.error_missing_dependencies));
         }
 
         mCameraSource = new CameraSource.Builder(this, detector)
                 .setFacing(CameraSource.CAMERA_FACING_FRONT)
+                // TODO: change FPS and check if changing preview size affects rendered image
                 .setRequestedPreviewSize(320, 240)
                 .build();
     }
@@ -151,18 +148,44 @@ public class MainActivity extends AppCompatActivity {
      * again when the camera source is created.
      */
     private void startCameraSource() {
+
+        if (!checkPlayServices()) {
+            showNonRecoverableError(getString(R.string.error_google_play_services_title),
+                    getString(R.string.error_google_play_services));
+        }
+
         if (mCameraSource != null) {
             try {
                 mCameraSource.start();
             } catch (IOException e) {
                 Log.e(TAG, "Unable to start camera source.", e);
                 // TODO: Add dialog here
+                showNonRecoverableError(getString(R.string.error_missing_camera_title),
+                        getString(R.string.error_missing_camera));
                 mCameraSource.release();
                 mCameraSource = null;
             }
         }
     }
 
+    /*
+     * Return if Google Play Services can or is installed
+     */
+    private boolean checkPlayServices() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        if (result != ConnectionResult.SUCCESS) {
+            Log.d(TAG, "Google API services not at the right version");
+            if (googleAPI.isUserResolvableError(result)) {
+                Log.d(TAG, "Requesting Google API services installation");
+                googleAPI.getErrorDialog(this, result, REQUEST_CODE_RECOVER_PLAY_SERVICES)
+                        .show();
+            } else
+                Log.d(TAG, "Google API services can't be installed");
+            return false;
+        }
+        return true;
+    }
 
     class FaceTracker extends Tracker<Face> {
         public void onNewItem(int id, Face face) {
@@ -171,7 +194,8 @@ public class MainActivity extends AppCompatActivity {
 
         public void onUpdate(Detector.Detections<Face> detections, Face face) {
             if (face.getIsSmilingProbability() > 0.75) {
-gi            }
+                Log.i(TAG, "I see a smile.  They must really enjoy your app.");
+            }
             else
                 Log.i(TAG, "DUDEEEEE, SMILE!");
         }
@@ -179,6 +203,18 @@ gi            }
         public void onDone() {
             Log.i(TAG, "Elvis has left the building.");
         }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE_RECOVER_PLAY_SERVICES:
+                Log.d(TAG, "Back from Google Play service (hopefully installed)");
+                // onResume() is now called, doing another google play service check.
+                return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -201,5 +237,22 @@ gi            }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /*
+     * Show a non recoverable error message, where clicking Ok exits the activity
+     */
+    private void showNonRecoverableError(String title, String message) {
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                finish();
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.dialog_OK, listener)
+                .show();
     }
 }
