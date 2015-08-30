@@ -14,10 +14,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.gms.vision.CameraSource;
+import com.google.android.gms.vision.Detector;
+import com.google.android.gms.vision.Tracker;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
+import com.google.android.gms.vision.face.LargestFaceFocusingProcessor;
+
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private static final int REQUEST_CAMERA_PERM = 1;
+
+    private CameraSource mCameraSource = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,11 +106,80 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    protected void onResume() {
+        super.onResume();
+        startCameraSource();
+    }
+
+    protected void onPause() {
+        super.onPause();
+        mCameraSource.stop();
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mCameraSource != null)
+            mCameraSource.release();
+    }
+
+    /*
+     * Create main camera source and face detector
+     */
     private void createCameraSource() {
-        Log.w(TAG, "Create a camera source");
+        FaceDetector detector = new FaceDetector.Builder(this)
+                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
+                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+                .setProminentFaceOnly(true)
+                .build();
+
+        detector.setProcessor(new LargestFaceFocusingProcessor(detector, new FaceTracker()));
+
+        if (!detector.isOperational()) {
+            // TODO: Add dialog here
+            Log.w(TAG, "Detector dependencies are not yet available.");
+        }
+
+        mCameraSource = new CameraSource.Builder(this, detector)
+                .setFacing(CameraSource.CAMERA_FACING_FRONT)
+                .setRequestedPreviewSize(320, 240)
+                .build();
+    }
+
+    /**
+     * Starts or restarts the camera source, if it exists.  If the camera source doesn't exist yet
+     * (e.g., because onResume was called before the camera source was created), this will be called
+     * again when the camera source is created.
+     */
+    private void startCameraSource() {
+        if (mCameraSource != null) {
+            try {
+                mCameraSource.start();
+            } catch (IOException e) {
+                Log.e(TAG, "Unable to start camera source.", e);
+                // TODO: Add dialog here
+                mCameraSource.release();
+                mCameraSource = null;
+            }
+        }
     }
 
 
+    class FaceTracker extends Tracker<Face> {
+        public void onNewItem(int id, Face face) {
+            Log.i(TAG, "Awesome person detected.  Hello!");
+        }
+
+        public void onUpdate(Detector.Detections<Face> detections, Face face) {
+            if (face.getIsSmilingProbability() > 0.75) {
+gi            }
+            else
+                Log.i(TAG, "DUDEEEEE, SMILE!");
+        }
+
+        public void onDone() {
+            Log.i(TAG, "Elvis has left the building.");
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
