@@ -106,12 +106,17 @@ public class CameraPreview extends ViewGroup {
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             Log.w(TAG, "New surface: " + width + ":" + height);
+            // This is the widtth and height under the activity menubar: 1080:1536
         }
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         Log.w(TAG, "rect: " + left + ", " + top + ", " + right + ", " + bottom);
+        Size size = mCameraSource.getPreviewSize();
+        if (size != null) {
+            Log.w(TAG, "Size is: " + size.getWidth() + ":" + size.getHeight());
+        }
         /*int width = 320;
         int height = 240;
         if (mCameraSource != null) {

@@ -17,6 +17,7 @@ import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.images.Size;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Tracker;
@@ -141,7 +142,9 @@ public class MainActivity extends AppCompatActivity {
         mCameraSource = new CameraSource.Builder(this, detector)
                 .setFacing(CameraSource.CAMERA_FACING_FRONT)
                 // TODO: change FPS and check if changing preview size affects rendered image
-                .setRequestedPreviewSize(320, 240)
+                // if set below Size is: 1280:720. If not: 960:544
+                //.setRequestedPreviewSize(1080, 1536)
+                .setRequestedFps(30.0f)
                 .build();
     }
 
