@@ -26,6 +26,8 @@ import com.google.android.gms.vision.face.LargestFaceFocusingProcessor;
 
 import java.io.IOException;
 
+import fr.teamrocks.timetosmile.ui.CameraPreview;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
@@ -33,11 +35,14 @@ public class MainActivity extends AppCompatActivity {
     static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
 
     private CameraSource mCameraSource = null;
+    private CameraPreview mPreview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mPreview = (CameraPreview) findViewById(R.id.cameraPreview);
 
         // get Camera permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -107,14 +112,12 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onPause() {
         super.onPause();
-        if (mCameraSource != null)
-            mCameraSource.stop();
+        mPreview.stop();
     }
 
     protected void onDestroy() {
         super.onDestroy();
-        if (mCameraSource != null)
-            mCameraSource.release();
+        mPreview.release();
     }
 
     /*
@@ -156,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (mCameraSource != null) {
             try {
-                mCameraSource.start();
+                mPreview.start(mCameraSource);
             } catch (IOException e) {
                 Log.e(TAG, "Unable to start camera source.", e);
                 // TODO: Add dialog here
@@ -188,18 +191,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class FaceTracker extends Tracker<Face> {
+
+        /*
+         * New main face on the view
+         */
+        @Override
         public void onNewItem(int id, Face face) {
             Log.i(TAG, "Awesome person detected.  Hello!");
         }
 
+        /**
+         * Update the position/characteristics of the face within the overlay.
+         */
+        @Override
         public void onUpdate(Detector.Detections<Face> detections, Face face) {
             if (face.getIsSmilingProbability() > 0.75) {
                 Log.i(TAG, "I see a smile.  They must really enjoy your app.");
-            }
-            else
+            } else if (face.getIsSmilingProbability() > 0.5) {
+                Log.i(TAG, "I see a timid smile. Almost there!");
+            } else
                 Log.i(TAG, "DUDEEEEE, SMILE!");
         }
 
+        /**
+         * Hide the graphic when the corresponding face was not detected.  This can happen for
+         * intermediate frames temporarily (e.g., if the face was momentarily blocked from
+         * view).
+         */
+        @Override
+        public void onMissing(FaceDetector.Detections<Face> detectionResults) {
+            //Log.i(TAG, "Where are you?");
+        }
+
+        @Override
         public void onDone() {
             Log.i(TAG, "Elvis has left the building.");
         }
