@@ -113,9 +113,11 @@ public class CameraPreview extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         Log.w(TAG, "rect: " + left + ", " + top + ", " + right + ", " + bottom);
-        Size size = mCameraSource.getPreviewSize();
-        if (size != null) {
-            Log.w(TAG, "Size is: " + size.getWidth() + ":" + size.getHeight());
+        if (mCameraSource != null) {
+            Size size = mCameraSource.getPreviewSize();
+            if (size != null) {
+                Log.w(TAG, "Size is: " + size.getWidth() + ":" + size.getHeight());
+            }
         }
         /*int width = 320;
         int height = 240;
