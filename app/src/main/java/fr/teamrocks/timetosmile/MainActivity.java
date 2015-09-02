@@ -6,18 +6,17 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
+import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.design.widget.Snackbar;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.Display;
 import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.images.Size;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Tracker;
@@ -139,11 +138,17 @@ public class MainActivity extends AppCompatActivity {
                     getString(R.string.error_missing_dependencies));
         }
 
+        Display display = getWindowManager().getDefaultDisplay();
+        Point displaySize = new Point();
+        display.getSize(displaySize);
+
         mCameraSource = new CameraSource.Builder(this, detector)
                 .setFacing(CameraSource.CAMERA_FACING_FRONT)
+                // TO FIX: the only way (as the surface is created afterwards), we try to set the preview size to be
+                // fullscreen (so with upper and bottom bar)
+                // if we don't set it, the resolution may be lower
+                .setRequestedPreviewSize(displaySize.x, displaySize.y)
                 // TODO: change FPS and check if changing preview size affects rendered image
-                // if set below Size is: 1280:720. If not: 960:544
-                //.setRequestedPreviewSize(1080, 1536)
                 .setRequestedFps(30.0f)
                 .build();
     }
