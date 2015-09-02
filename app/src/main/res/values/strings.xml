@@ -1,16 +1,18 @@
 <resources>
     <string name="app_name">Time to smile</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
     <string name="camera_perm_rationale">We need to have access to the camera to see your cute smile!</string>
     <string name="dialog_OK">OK</string>
+
     <string name="message_need_camera_permission">This application cannot run because it does not have the camera permission. The application will now exit.</string>
     <string name="message_need_camera_permission_title">We won\'t see your smile!</string>
+
     <string name="error_google_play_services_title">Google Play services needed</string>
     <string name="error_google_play_services">Google Play services is needed and correct version can\'t be installed on your device.</string>
+
     <string name="error_missing_dependencies_title">Dependencies not yet installed</string>
     <string name="error_missing_dependencies">Some requirements are not available yet on your device. There are downloading as soon as you have some available network access. Please relaunch the application later.</string>
+
     <string name="error_missing_camera_title">Camera not available</string>
     <string name="error_missing_camera">We don\'t have to the camera. Please try to relaunch the application later.</string>
 </resources>
