@@ -1,9 +1,12 @@
 package fr.teamrocks.timetosmile.ui;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
@@ -26,6 +29,8 @@ public class CameraPreview extends ViewGroup {
 
     private SurfaceView mSurfaceView;
     private CameraSource mCameraSource;
+
+    private Point defaultCameraPreviewSize;
 
     public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -83,6 +88,10 @@ public class CameraPreview extends ViewGroup {
         }
     }
 
+    public void setDisplaySize(Point displaySize) {
+        defaultCameraPreviewSize = displaySize;
+    }
+
     /*
      * Camera surface itself
      */
@@ -106,49 +115,58 @@ public class CameraPreview extends ViewGroup {
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             Log.w(TAG, "New surface: " + width + ":" + height);
-            // This is the widtth and height under the activity menubar: 1080:1536
+            // This is the width and height under the activity menubar: 1080:1536
         }
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        Log.w(TAG, "rect: " + left + ", " + top + ", " + right + ", " + bottom);
-        if (mCameraSource != null) {
-            Size size = mCameraSource.getPreviewSize();
-            if (size != null) {
-                Log.w(TAG, "Size is: " + size.getWidth() + ":" + size.getHeight());
-            }
+
+        // this is for the design view
+        if (defaultCameraPreviewSize == null) {
+            defaultCameraPreviewSize = new Point(2560, 1340);
         }
-        /*int width = 320;
-        int height = 240;
+        int width = defaultCameraPreviewSize.x;
+        int height = defaultCameraPreviewSize.y;
+        int offset_x = 0;
+        Log.w(TAG, "screen default width requested for camera preview:" + width + ":" + height);
         if (mCameraSource != null) {
             Size size = mCameraSource.getPreviewSize();
             if (size != null) {
                 width = size.getWidth();
                 height = size.getHeight();
+                Log.w(TAG, "camera preview real size:" + width + ":" + height);
             }
+        }
+
+        // Swap width and height sizes when in portrait, since it will be rotated 90 degrees
+        if (isPortraitMode()) {
+            int tmp = width;
+            width = height;
+            height = tmp;
         }
 
         final int layoutWidth = right - left;
         final int layoutHeight = bottom - top;
+        Log.w(TAG, "Surface size:" + layoutWidth + ":" + layoutHeight);
 
         // Computes height and width for potentially doing fit width.
         int childWidth = layoutWidth;
         int childHeight = (int)(((float) layoutWidth / (float) width) * height);
 
+        // We always match the width, even if that mean cutting some part of the height
         // If height is too tall using fit width, does fit height instead.
-        if (childHeight > layoutHeight) {
+        /*if (childHeight > layoutHeight) {
             childHeight = layoutHeight;
             childWidth = (int)(((float) layoutHeight / (float) height) * width);
+            // we center it as well
+            offset_x = (layoutWidth - childWidth) / 2;
         }*/
 
-        // TO REMOVE
-        int childWidth = right;
-        int childHeight = bottom;
-
+        Log.w(TAG, "Parent size " + layoutWidth + ":" + layoutHeight);
         for (int i = 0; i < getChildCount(); ++i) {
-            Log.d(TAG, "one children: " + i);
-            getChildAt(i).layout(0, 0, childWidth, childHeight);
+            Log.w(TAG, "Child number " + i + "    size:" + childWidth + ":" + childHeight);
+            getChildAt(i).layout(offset_x, 0, offset_x + childWidth, childHeight);
         }
 
         try {
@@ -158,9 +176,16 @@ public class CameraPreview extends ViewGroup {
         }
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        mSurfaceView.draw(canvas);
+    private boolean isPortraitMode() {
+        int orientation = mContext.getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            return false;
+        }
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            return true;
+        }
+
+        Log.d(TAG, "isPortraitMode returning false by default");
+        return false;
     }
 }
