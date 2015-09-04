@@ -18,15 +18,14 @@ import android.view.View;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;
-import com.google.android.gms.vision.Detector;
-import com.google.android.gms.vision.Tracker;
-import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.google.android.gms.vision.face.LargestFaceFocusingProcessor;
 
 import java.io.IOException;
 
+import fr.teamrocks.timetosmile.entities.SmileData;
 import fr.teamrocks.timetosmile.ui.CameraPreview;
+import fr.teamrocks.timetosmile.entities.FaceTracker;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -37,12 +36,21 @@ public class MainActivity extends AppCompatActivity {
     private CameraSource mCameraSource = null;
     private CameraPreview mPreview;
 
+    private Point displaySize = new Point();
+    private SmileData todaySmileData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mPreview = (CameraPreview) findViewById(R.id.cameraPreview);
+        Display display = getWindowManager().getDefaultDisplay();
+        display.getSize(displaySize);
+        mPreview.setDisplaySize(displaySize);
+
+        // create today's smile data (TODO: can be retrieve later from database if same day)
+        todaySmileData = new SmileData();
 
         // get Camera permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -51,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             requestCameraPermission();
         }
-
     }
 
     /**
@@ -130,7 +137,8 @@ public class MainActivity extends AppCompatActivity {
                 .setProminentFaceOnly(true)
                 .build();
 
-        detector.setProcessor(new LargestFaceFocusingProcessor(detector, new FaceTracker()));
+        FaceTracker faceTracker = new FaceTracker(todaySmileData);
+        detector.setProcessor(new LargestFaceFocusingProcessor(detector, faceTracker));
 
         if (!detector.isOperational()) {
             Log.w(TAG, "Detector dependencies are not yet available.");
@@ -138,16 +146,14 @@ public class MainActivity extends AppCompatActivity {
                     getString(R.string.error_missing_dependencies));
         }
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point displaySize = new Point();
-        display.getSize(displaySize);
-
         mCameraSource = new CameraSource.Builder(this, detector)
                 .setFacing(CameraSource.CAMERA_FACING_FRONT)
                 // TO FIX: the only way (as the surface is created afterwards), we try to set the preview size to be
                 // fullscreen (so with upper and bottom bar)
                 // if we don't set it, the resolution may be lower
                 .setRequestedPreviewSize(displaySize.x, displaySize.y)
+                //.setRequestedPreviewSize(2560, 1340)
+                //.setRequestedPreviewSize(320, 160)
                 // TODO: change FPS and check if changing preview size affects rendered image
                 .setRequestedFps(30.0f)
                 .build();
@@ -196,45 +202,6 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
         return true;
-    }
-
-    class FaceTracker extends Tracker<Face> {
-
-        /*
-         * New main face on the view
-         */
-        @Override
-        public void onNewItem(int id, Face face) {
-            Log.i(TAG, "Awesome person detected.  Hello!");
-        }
-
-        /**
-         * Update the position/characteristics of the face within the overlay.
-         */
-        @Override
-        public void onUpdate(Detector.Detections<Face> detections, Face face) {
-            if (face.getIsSmilingProbability() > 0.75) {
-                Log.i(TAG, "I see a smile.  They must really enjoy your app.");
-            } else if (face.getIsSmilingProbability() > 0.5) {
-                Log.i(TAG, "I see a timid smile. Almost there!");
-            } else
-                Log.i(TAG, "DUDEEEEE, SMILE!");
-        }
-
-        /**
-         * Hide the graphic when the corresponding face was not detected.  This can happen for
-         * intermediate frames temporarily (e.g., if the face was momentarily blocked from
-         * view).
-         */
-        @Override
-        public void onMissing(FaceDetector.Detections<Face> detectionResults) {
-            //Log.i(TAG, "Where are you?");
-        }
-
-        @Override
-        public void onDone() {
-            Log.i(TAG, "Elvis has left the building.");
-        }
     }
 
 
