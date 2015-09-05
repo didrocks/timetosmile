@@ -32,7 +32,7 @@ public class CameraPreview extends RelativeLayout {
 
     public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Log.e(TAG, "NEW CAMERA PREVIEW");
+        Log.d(TAG, "New camera preview");
         mContext = context;
         mStartRequested = false;
         mSurfaceAvailable = false;
@@ -66,7 +66,7 @@ public class CameraPreview extends RelativeLayout {
     private void startIfReady() throws IOException {
         Log.d(TAG, "Start if ready: " + mStartRequested + " " + mSurfaceAvailable);
         if (mStartRequested && mSurfaceAvailable) {
-            Log.d(TAG, "REALLY START");
+            Log.d(TAG, "Really start camera");
             mCameraSource.start(mSurfaceView.getHolder());
             /*if (mOverlay != null) {
                 Size size = mCameraSource.getPreviewSize();
@@ -96,7 +96,7 @@ public class CameraPreview extends RelativeLayout {
         @Override
         public void surfaceCreated(SurfaceHolder surface) {
             mSurfaceAvailable = true;
-            Log.e(TAG, "Surface created");
+            Log.d(TAG, "Surface created");
             try {
                 startIfReady();
             } catch (IOException e) {
@@ -111,7 +111,7 @@ public class CameraPreview extends RelativeLayout {
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            Log.w(TAG, "New surface: " + width + ":" + height);
+            Log.d(TAG, "New surface: " + width + ":" + height);
             // This is the width and height under the activity menubar: 1080:1536
         }
     }
@@ -132,7 +132,7 @@ public class CameraPreview extends RelativeLayout {
             if (size != null) {
                 width = size.getWidth();
                 height = size.getHeight();
-                Log.w(TAG, "camera preview real size:" + width + ":" + height);
+                Log.d(TAG, "Camera preview real size:" + width + ":" + height);
             }
         }
 
@@ -145,7 +145,7 @@ public class CameraPreview extends RelativeLayout {
 
         final int layoutWidth = right - left;
         final int layoutHeight = bottom - top;
-        Log.w(TAG, "Surface size:" + layoutWidth + ":" + layoutHeight);
+        Log.d(TAG, "Surface size:" + layoutWidth + ":" + layoutHeight);
 
         // Computes height and width for potentially doing fit width.
         // We always match the width, even if that mean cutting some part of the height
@@ -153,7 +153,7 @@ public class CameraPreview extends RelativeLayout {
         int childHeight = (int)(((float) layoutWidth / (float) width) * height);
 
         for (int i = 0; i < getChildCount(); ++i) {
-            Log.w(TAG, "New children: " + i);
+            Log.d(TAG, "New children: " + i);
             getChildAt(i).layout(0, 0, childWidth, childHeight);
         }
 

@@ -74,13 +74,13 @@ public class MainActivity extends AppCompatActivity {
      * sending the request.
      */
     private void requestCameraPermission() {
-        Log.w(TAG, "Camera permission is not granted. Requesting permission");
+        Log.i(TAG, "Camera permission is not granted. Requesting permission");
 
         final Activity thisActivity = this;
         final String[] permissions = new String[]{Manifest.permission.CAMERA};
 
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-            Log.w(TAG, "Was already denied, giving more rationale");
+            Log.i(TAG, "Was already denied, giving more rationale");
 
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
@@ -201,11 +201,11 @@ public class MainActivity extends AppCompatActivity {
         if (result != ConnectionResult.SUCCESS) {
             Log.d(TAG, "Google API services not at the right version");
             if (googleAPI.isUserResolvableError(result)) {
-                Log.d(TAG, "Requesting Google API services installation");
+                Log.w(TAG, "Requesting Google API services installation");
                 googleAPI.getErrorDialog(this, result, REQUEST_CODE_RECOVER_PLAY_SERVICES)
                         .show();
             } else
-                Log.d(TAG, "Google API services can't be installed");
+                Log.e(TAG, "Google API services can't be installed");
             return false;
         }
         return true;
