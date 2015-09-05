@@ -129,8 +129,7 @@ public class CameraPreview extends RelativeLayout {
         }
         int width = defaultCameraPreviewSize.x;
         int height = defaultCameraPreviewSize.y;
-        int offset_x = 0;
-        Log.w(TAG, "screen default width requested for camera preview:" + width + ":" + height);
+
         if (mCameraSource != null) {
             Size size = mCameraSource.getPreviewSize();
             if (size != null) {
@@ -152,22 +151,13 @@ public class CameraPreview extends RelativeLayout {
         Log.w(TAG, "Surface size:" + layoutWidth + ":" + layoutHeight);
 
         // Computes height and width for potentially doing fit width.
+        // We always match the width, even if that mean cutting some part of the height
         int childWidth = layoutWidth;
         int childHeight = (int)(((float) layoutWidth / (float) width) * height);
 
-        // We always match the width, even if that mean cutting some part of the height
-        // If height is too tall using fit width, does fit height instead.
-        /*if (childHeight > layoutHeight) {
-            childHeight = layoutHeight;
-            childWidth = (int)(((float) layoutHeight / (float) height) * width);
-            // we center it as well
-            offset_x = (layoutWidth - childWidth) / 2;
-        }*/
-
-        Log.w(TAG, "Parent size " + layoutWidth + ":" + layoutHeight);
         for (int i = 0; i < getChildCount(); ++i) {
-            Log.w(TAG, "Child number " + i + "    size:" + childWidth + ":" + childHeight);
-            getChildAt(i).layout(offset_x, 0, offset_x + childWidth, childHeight);
+            Log.w(TAG, "New children: " + i);
+            getChildAt(i).layout(0, 0, childWidth, childHeight);
         }
 
         try {
