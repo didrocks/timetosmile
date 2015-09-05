@@ -1,7 +1,10 @@
 package fr.teamrocks.timetosmile.ui;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.animation.LinearInterpolator;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -67,15 +70,25 @@ public class StatusOverlayView extends RelativeLayout {
                 mStatusString = "What a great smile!";
                 break;
         }
+
+        long previousSmileDuration = mSmileDurationToday;
         mSmileDurationToday = smileData.getmSmilingDuration();
+        final boolean durationChanged = (previousSmileDuration / 1000) != (mSmileDurationToday  / 1000);
         mSmileDurationString = smileData.getFormatTime();
 
         // update the elements in the UI thread
         post(new Runnable() {
             @Override
             public void run() {
-                mSmileDurationTodayProgress.setProgress(Math.min((int) (mSmileDurationToday * 100 / SmileData
-                        .TARGETSMILINGTIME), 100));
+                // as we use an interpolator, only change when the duration changed to set a new objective
+                if (durationChanged) {
+                    ObjectAnimator animation = ObjectAnimator.ofInt(mSmileDurationTodayProgress, "progress",
+                            mSmileDurationTodayProgress.getProgress(), (int) Math.min(mSmileDurationToday,
+                                    SmileData.TARGETSMILINGTIME));
+                    animation.setDuration(1000);
+                    animation.setInterpolator(new LinearInterpolator());
+                    animation.start();
+                }
                 mSmileDurationText.setText(mSmileDurationString);
                 mStatusText.setText(mStatusString);
             }
