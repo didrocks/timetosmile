@@ -153,7 +153,7 @@ public class CameraPreview extends RelativeLayout {
         int childHeight = (int)(((float) layoutWidth / (float) width) * height);
 
         for (int i = 0; i < getChildCount(); ++i) {
-            Log.d(TAG, "New children: " + i);
+            Log.d(TAG, "Children found in layout: " + i);
             getChildAt(i).layout(0, 0, childWidth, childHeight);
         }
 
