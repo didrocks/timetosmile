@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -33,11 +34,11 @@ public class StatusOverlayView extends RelativeLayout {
         SMILING
     };
 
-    public StatusOverlayView(Context context, AttributeSet attrs) { super(context, attrs); }
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
+
+    public StatusOverlayView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        View.inflate(context, R.layout.status_overlay_view, this);
         mSmileDurationTodayProgress = (ProgressBar) findViewById(R.id.smileProgressBar);
         mSmileDurationText = (TextView) findViewById(R.id.smileProgressText);
         mStatusText = (TextView) findViewById(R.id.smileStatusText);
