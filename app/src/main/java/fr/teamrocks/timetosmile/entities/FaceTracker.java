@@ -1,8 +1,6 @@
 package fr.teamrocks.timetosmile.entities;
 
-import android.graphics.Point;
 import android.util.Log;
-import android.util.Size;
 
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Tracker;
@@ -11,10 +9,13 @@ import com.google.android.gms.vision.face.FaceDetector;
 
 import fr.teamrocks.timetosmile.ui.StatusOverlayView;
 
+/**
+ * Tracking a face and chaining it to a graphical UI
+ */
 public class FaceTracker extends Tracker<Face> {
     private static final String TAG = "FaceTracker";
 
-    private SmileData smileData;
+    private SmileData mSmileData;
     private StatusOverlayView mStatusOverlay;
 
     /**
@@ -23,7 +24,7 @@ public class FaceTracker extends Tracker<Face> {
      */
     public FaceTracker(SmileData smileData, StatusOverlayView statusOverlay) {
         super();
-        this.smileData = smileData;
+        mSmileData = smileData;
         mStatusOverlay = statusOverlay;
     }
 
@@ -40,19 +41,19 @@ public class FaceTracker extends Tracker<Face> {
      */
     @Override
     public void onUpdate(Detector.Detections<Face> detections, Face face) {
-        if (smileData == null) {
+        if (mSmileData == null) {
             Log.e(TAG, "No smile data associated");
             return;
         }
         if (face.getIsSmilingProbability() > 0.7) {
-            smileData.Smile();
-            mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.SMILING, smileData);
+            mSmileData.Smile();
+            mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.SMILING, mSmileData);
         } else if (face.getIsSmilingProbability() > 0.3) {
-            smileData.NoSmile();
-            mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.TIMID, smileData);
+            mSmileData.NoSmile();
+            mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.TIMID, mSmileData);
         } else {
-            smileData.NoSmile();
-            mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.NONE, smileData);
+            mSmileData.NoSmile();
+            mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.NONE, mSmileData);
         }
     }
 
@@ -63,12 +64,12 @@ public class FaceTracker extends Tracker<Face> {
      */
     @Override
     public void onMissing(FaceDetector.Detections<Face> detectionResults) {
-        mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.NO_ONE, smileData);
+        mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.NO_ONE, mSmileData);
     }
 
     @Override
     public void onDone() {
-        smileData.NoSmile();
-        mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.NO_ONE, smileData);
+        mSmileData.NoSmile();
+        mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.NO_ONE, mSmileData);
     }
 }

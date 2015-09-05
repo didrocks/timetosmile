@@ -6,22 +6,21 @@ import java.util.Date;
 
 import fr.teamrocks.timetosmile.utils.TimeFormat;
 
+/**
+ * Smile Data storing current smile stats for a given day
+ */
 public class SmileData extends TimeFormat {
     private static final String TAG = "SmileData";
 
-    private final Date day;
-
-    // Length of smiling time in milliseconds
-    private long smilingDuration;
     public static final long TARGETSMILINGTIME = 60*1000;
 
-    // Last start smiling time in ms
-    private long currentSmileStartTime;
+    private final Date mDay;
+    // Length of smiling time in milliseconds
+    private long mSmilingDuration;
 
+    // Last start smiling time in ms
+    private long mCurrentSmileStartTime;
     private boolean isSmiling = false;
-    public boolean isSmiling() {
-        return isSmiling;
-    }
 
     /**
      * Create a brand new SmileData for today
@@ -37,8 +36,8 @@ public class SmileData extends TimeFormat {
      * @param smilingDuration the length of the smiling in ms for that day.
      */
     public SmileData(Date day, long smilingDuration) {
-        this.day = day;
-        this.smilingDuration = smilingDuration;
+        mDay = day;
+        mSmilingDuration = smilingDuration;
     }
 
     /**
@@ -49,7 +48,7 @@ public class SmileData extends TimeFormat {
             return;
 
         isSmiling = true;
-        currentSmileStartTime = SystemClock.elapsedRealtime();
+        mCurrentSmileStartTime = SystemClock.elapsedRealtime();
     }
 
     /**
@@ -60,23 +59,23 @@ public class SmileData extends TimeFormat {
             return;
 
         isSmiling = false;
-        smilingDuration += SystemClock.elapsedRealtime() - currentSmileStartTime;
+        mSmilingDuration += SystemClock.elapsedRealtime() - mCurrentSmileStartTime;
     }
 
     /**
      * @return current smiling duration for that day
      */
-    public long getSmilingDuration() {
+    public long getmSmilingDuration() {
         if (isSmiling)
-            return smilingDuration + SystemClock.elapsedRealtime() - currentSmileStartTime;
+            return mSmilingDuration + SystemClock.elapsedRealtime() - mCurrentSmileStartTime;
         else
-            return smilingDuration;
+            return mSmilingDuration;
     }
 
     /**
      * @return chain to the current smiling duration
      */
     protected long getTime() {
-        return getSmilingDuration();
+        return getmSmilingDuration();
     }
 }

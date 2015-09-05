@@ -2,14 +2,11 @@ package fr.teamrocks.timetosmile.ui;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Canvas;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.google.android.gms.common.images.Size;
@@ -17,9 +14,9 @@ import com.google.android.gms.vision.CameraSource;
 
 import java.io.IOException;
 
-import fr.teamrocks.timetosmile.R;
-
-
+/**
+ * Display the camera preview to different sizes and enable overlay elements on image to be drawn
+ */
 public class CameraPreview extends RelativeLayout {
     private static final String TAG = "CameraPreview";
 
@@ -31,7 +28,7 @@ public class CameraPreview extends RelativeLayout {
     private SurfaceView mSurfaceView;
     private CameraSource mCameraSource;
 
-    private Point defaultCameraPreviewSize;
+    private Point mDefaultCameraPreviewSize;
 
     public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -89,7 +86,7 @@ public class CameraPreview extends RelativeLayout {
     }
 
     public void setDisplaySize(Point displaySize) {
-        defaultCameraPreviewSize = displaySize;
+        mDefaultCameraPreviewSize = displaySize;
     }
 
     /*
@@ -124,11 +121,11 @@ public class CameraPreview extends RelativeLayout {
         super.onLayout(changed, left, top, right, bottom);
 
         // this is for the design view
-        if (defaultCameraPreviewSize == null) {
-            defaultCameraPreviewSize = new Point(bottom-top, right-left);
+        if (mDefaultCameraPreviewSize == null) {
+            mDefaultCameraPreviewSize = new Point(bottom-top, right-left);
         }
-        int width = defaultCameraPreviewSize.x;
-        int height = defaultCameraPreviewSize.y;
+        int width = mDefaultCameraPreviewSize.x;
+        int height = mDefaultCameraPreviewSize.y;
 
         if (mCameraSource != null) {
             Size size = mCameraSource.getPreviewSize();

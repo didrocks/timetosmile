@@ -1,10 +1,10 @@
 package fr.teamrocks.timetosmile.utils;
 
 /**
- * would be better as a mixin once available in java 8
- * some parts are from com.example.android.wearable.timer.util
+ * Helper to format time duration to display a short string.
+ * Would be better as a mixin once available in java 8
+ * some parts are coming from com.example.android.wearable.timer.util
  */
-
 public abstract class TimeFormat {
 
     private static final String TWO_DIGITS = "%02d";

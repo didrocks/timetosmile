@@ -1,16 +1,7 @@
 package fr.teamrocks.timetosmile.ui;
 
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -19,19 +10,18 @@ import fr.teamrocks.timetosmile.R;
 import fr.teamrocks.timetosmile.entities.SmileData;
 
 /**
- * TODO: document your custom view class.
+ * Custom overlay status with text and scrollbar
  */
 public class StatusOverlayView extends RelativeLayout {
     private static final String TAG = "StatusOverlayView";
 
-    private String statusString;
-    private String smileDurationString;
-    private long smileDurationToday;
+    private String mStatusString;
+    private String mSmileDurationString;
+    private long mSmileDurationToday;
 
     private TextView mStatusText;
     private TextView mSmileDurationText;
     private ProgressBar mSmileDurationTodayProgress;
-
 
     public enum SMILING_STATUS {
         NO_ONE,
@@ -57,30 +47,37 @@ public class StatusOverlayView extends RelativeLayout {
 
     }
 
+    /**
+     * Enable update element status
+     * @param smilingStatus: Is the user smiling, present, timid?
+     * @param smileData: the current smileData where we'll extract the values
+     */
     public void updateSmileStatus(SMILING_STATUS smilingStatus, SmileData smileData) {
         switch (smilingStatus) {
             case NO_ONE:
-                statusString = "Where are you?";
+                mStatusString = "Where are you?";
                 break;
             case NONE:
-                statusString = "Please smile…";
+                mStatusString = "Please smile…";
                 break;
             case TIMID:
-                statusString = "I see a timid smile. Almost there!";
+                mStatusString = "I see a timid smile. Almost there!";
                 break;
             case SMILING:
-                statusString = "What a great smile!";
+                mStatusString = "What a great smile!";
                 break;
         }
-        smileDurationToday = smileData.getSmilingDuration();
-        smileDurationString = smileData.getFormatTime();
+        mSmileDurationToday = smileData.getmSmilingDuration();
+        mSmileDurationString = smileData.getFormatTime();
 
+        // update the elements in the UI thread
         post(new Runnable() {
             @Override
             public void run() {
-                mSmileDurationTodayProgress.setProgress((int) (smileDurationToday * 100 / SmileData.TARGETSMILINGTIME));
-                mSmileDurationText.setText(smileDurationString);
-                mStatusText.setText(statusString);
+                mSmileDurationTodayProgress.setProgress(Math.min((int) (mSmileDurationToday * 100 / SmileData
+                        .TARGETSMILINGTIME), 100));
+                mSmileDurationText.setText(mSmileDurationString);
+                mStatusText.setText(mStatusString);
             }
         });
     }

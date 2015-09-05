@@ -28,6 +28,9 @@ import fr.teamrocks.timetosmile.ui.CameraPreview;
 import fr.teamrocks.timetosmile.entities.FaceTracker;
 import fr.teamrocks.timetosmile.ui.StatusOverlayView;
 
+/**
+ * Main application activity starting detecting an user's face
+ */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
