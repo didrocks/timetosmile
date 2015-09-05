@@ -13,7 +13,7 @@ public class SmileData extends TimeFormat {
 
     // Length of smiling time in milliseconds
     private long smilingDuration;
-    private final long TARGETSMILINGTIME = 60*1000;
+    public static final long TARGETSMILINGTIME = 60*1000;
 
     // Last start smiling time in ms
     private long currentSmileStartTime;

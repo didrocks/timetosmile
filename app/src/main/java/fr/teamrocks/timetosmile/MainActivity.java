@@ -26,6 +26,7 @@ import java.io.IOException;
 import fr.teamrocks.timetosmile.entities.SmileData;
 import fr.teamrocks.timetosmile.ui.CameraPreview;
 import fr.teamrocks.timetosmile.entities.FaceTracker;
+import fr.teamrocks.timetosmile.ui.StatusOverlayView;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CameraSource mCameraSource = null;
     private CameraPreview mPreview;
+    private StatusOverlayView mStatusOverlay;
 
     private Point displaySize = new Point();
     private SmileData todaySmileData;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mPreview = (CameraPreview) findViewById(R.id.cameraPreview);
+        mStatusOverlay = (StatusOverlayView) findViewById(R.id.statusOverlay);
+
         Display display = getWindowManager().getDefaultDisplay();
         display.getSize(displaySize);
         mPreview.setDisplaySize(displaySize);
@@ -137,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 .setProminentFaceOnly(true)
                 .build();
 
-        FaceTracker faceTracker = new FaceTracker(todaySmileData);
+        FaceTracker faceTracker = new FaceTracker(todaySmileData, mStatusOverlay);
         detector.setProcessor(new LargestFaceFocusingProcessor(detector, faceTracker));
 
         if (!detector.isOperational()) {

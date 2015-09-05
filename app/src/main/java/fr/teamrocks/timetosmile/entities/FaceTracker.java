@@ -9,18 +9,22 @@ import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 
+import fr.teamrocks.timetosmile.ui.StatusOverlayView;
+
 public class FaceTracker extends Tracker<Face> {
     private static final String TAG = "FaceTracker";
 
     private SmileData smileData;
+    private StatusOverlayView mStatusOverlay;
 
     /**
      * New FaceTracker constructor
      * @param smileData: the current new smile data to associate
      */
-    public FaceTracker(SmileData smileData) {
+    public FaceTracker(SmileData smileData, StatusOverlayView statusOverlay) {
         super();
         this.smileData = smileData;
+        mStatusOverlay = statusOverlay;
     }
 
     /**
@@ -42,13 +46,13 @@ public class FaceTracker extends Tracker<Face> {
         }
         if (face.getIsSmilingProbability() > 0.7) {
             smileData.Smile();
-            Log.i(TAG, "Smiling for: " + smileData.getFormatTime());
+            mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.SMILING, smileData);
         } else if (face.getIsSmilingProbability() > 0.3) {
             smileData.NoSmile();
-            Log.i(TAG, "I see a timid smile. Almost there!");
+            mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.TIMID, smileData);
         } else {
             smileData.NoSmile();
-            Log.i(TAG, "SMILE!");
+            mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.NONE, smileData);
         }
     }
 
@@ -59,12 +63,12 @@ public class FaceTracker extends Tracker<Face> {
      */
     @Override
     public void onMissing(FaceDetector.Detections<Face> detectionResults) {
-        Log.i(TAG, "Where are you?");
+        mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.NO_ONE, smileData);
     }
 
     @Override
     public void onDone() {
-        Log.i(TAG, "Elvis has left the building.");
         smileData.NoSmile();
+        mStatusOverlay.updateSmileStatus(StatusOverlayView.SMILING_STATUS.NO_ONE, smileData);
     }
 }
