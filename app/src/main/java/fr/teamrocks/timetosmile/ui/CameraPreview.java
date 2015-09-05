@@ -10,6 +10,7 @@ import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.common.images.Size;
 import com.google.android.gms.vision.CameraSource;
@@ -19,7 +20,7 @@ import java.io.IOException;
 import fr.teamrocks.timetosmile.R;
 
 
-public class CameraPreview extends ViewGroup {
+public class CameraPreview extends RelativeLayout {
     private static final String TAG = "CameraPreview";
 
     private Context mContext;
@@ -120,10 +121,11 @@ public class CameraPreview extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
 
         // this is for the design view
         if (defaultCameraPreviewSize == null) {
-            defaultCameraPreviewSize = new Point(2560, 1340);
+            defaultCameraPreviewSize = new Point(bottom-top, right-left);
         }
         int width = defaultCameraPreviewSize.x;
         int height = defaultCameraPreviewSize.y;
