@@ -47,6 +47,10 @@ public class StatusOverlayView extends RelativeLayout {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
+        for(int i = 0 ; i < getChildCount() ; i++){
+            Log.d(TAG, "Children found in layout: " + i);
+            getChildAt(i).layout(left, top, right, bottom);
+        }
     }
 
     /**
