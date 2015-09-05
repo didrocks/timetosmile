@@ -46,7 +46,7 @@ public abstract class TimeFormat {
      * @param number the number to format
      * @return a string formatted version of number. Null if <= 0
      */
-    private String formatNumber(double number) {
+    private String formatNumber(long number) {
         String result = null;
         if (number >= 10) {
             result = String.format(TWO_DIGITS, number);
